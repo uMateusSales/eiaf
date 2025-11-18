@@ -1,20 +1,44 @@
 'use client';
 
 import React from 'react';
+import Link from 'next/link';
+// IMPORTADO: Componente de Busca
+// Importe seu HeaderIcon e HeaderButtons
 import HeaderIcon from '../../../public/HeaderIcon';
 import HeaderButtons from './HeaderButtons';
+import SearchInput from './SearchInput';
 
 function Header() {
   return (
-    <div className="border-2 border-black rounded flex items-center flex-row justify-between m-1">
-      <div className="flex items-center hover:opacity-50">
-        <HeaderIcon />
-        <p className="text-4xl text-[#22c55e]">
-          Estudos financeiros inteligentes
-        </p>
+    // Mantido o p-4 e as classes de sticky/shadow
+    <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 shadow-md p-4">
+      {/* Container principal para o conteúdo do header. A altura h-16 + p-4 em cima define a altura total */}
+      <div className="flex h-16 items-center justify-between px-4 md:px-6">
+        {/* 1. Logo e Título (Lado Esquerdo) */}
+        <Link
+          href="/"
+          // shrink-0 para garantir que o logo/título não seja espremido pela busca
+          className="flex items-center space-x-2 shrink-0 hover:opacity-80 transition-opacity"
+        >
+          <HeaderIcon />
+          <span className="text-xl md:text-2xl font-bold text-[#22c55e] hidden sm:inline">
+            Estudos financeiros inteligentes
+          </span>
+          <span className="text-2xl font-bold text-[#22c55e] sm:hidden">
+            EFI
+          </span>
+        </Link>
+
+        <div className="hidden lg:flex grow justify-center mx-10 max-w-lg">
+          <SearchInput />
+        </div>
+
+        {/* shrink-0 para garantir que os botões não sejam espremidos */}
+        <div className="flex items-center justify-end shrink-0">
+          <HeaderButtons />
+        </div>
       </div>
-      <HeaderButtons />
-    </div>
+    </header>
   );
 }
 
