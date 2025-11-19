@@ -11,8 +11,8 @@ import {
   ResponsiveContainer,
   ReferenceLine,
 } from 'recharts';
-import BaseChartWrapper from './ui/ChartWrapper';
-import { mockCandleData, mockStudyDate } from '@/lib/mockData';
+import BaseChartWrapper from '@/components/ui/ChartWrapper';
+import { mockCandleData, mockStudyDate } from '@/lib/fakedata';
 
 interface HighTrendChartProps {
   stock: string;
@@ -34,8 +34,8 @@ const HighTrendChart: React.FC<HighTrendChartProps> = ({ stock }) => {
   // Determina o domínio Y para melhor visualização
   const { yMin, yMax } = useMemo(() => {
     const prices = chartData.map((d) => d.price);
-    const min = Math.min(...prices) * 0.95; // 5% de margem
-    const max = Math.max(...prices) * 1.05; // 5% de margem
+    const min = Math.min(...prices) * 0.95;
+    const max = Math.max(...prices) * 1.05;
     return { yMin: min, yMax: max };
   }, [chartData]);
 
@@ -85,15 +85,26 @@ const HighTrendChart: React.FC<HighTrendChartProps> = ({ stock }) => {
             labelStyle={{ color: 'hsl(var(--foreground))' }}
           />
 
-          {/* Linha Principal de Fechamento */}
+          {/* Linha Principal de Fechamento - Mantendo o dot=true para o ponto */}
           <Line
             type="monotone"
             dataKey="price"
-            stroke={lineColor}
+            stroke="lime"
             strokeWidth={2}
-            dot={false}
+            dot={{ fill: lineColor, r: 3 }} // Ponto no fechamento
             name="Fechamento"
           />
+
+          {/* 🚨 NOVO: Linhas Verticais de Referência em Cada Ponto de Fechamento (Data) */}
+          {chartData.map((entry, index) => (
+            <ReferenceLine
+              key={`v-line-${index}`}
+              x={entry.date} // Define a linha vertical na coordenada X (data)
+              stroke="#E5E7EB" // Cor cinza claro
+              strokeDasharray="2 2" // Linha tracejada para não poluir
+              strokeOpacity={0.6}
+            />
+          ))}
 
           {/* Referência: Simulação de Projeção (Tendência de Alta) */}
           <ReferenceLine
