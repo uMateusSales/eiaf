@@ -1,10 +1,10 @@
 import { Button } from '@/components/ui/button';
-import Link from 'next/link';
-// IMPORTAÇÕES
+
 import DisclaimerModal from './components/DiscalimerModal';
 import SearchInput from './components/SearchInput';
 import { CardRecentStock } from './components/CardRecentStocks';
-import Image from 'next/image';
+
+import ContactModal from './components/ContactModal';
 
 // Dados de exemplo para os 3 Cards
 const latestStocks = [
@@ -27,8 +27,9 @@ const latestStocks = [
 
 export default function Home() {
   return (
-    // Ajustado 'mt-4' para espaçamento do Header fixo
     <main className="flex flex-col items-center px-6 mt-4 pb-16 w-full">
+      {/* <ContactModal /> */}
+
       {/* Intro Section - MANTIDA */}
       <section className="flex flex-col items-center text-center max-w-4xl">
         <div className="flex gap-5">
@@ -37,7 +38,15 @@ export default function Home() {
             <br />
             meio de estudos de ativos
           </h1>
-          <Image src="/world.png" alt="mundo" width={150} height={150} />{' '}
+          {/* 🚨 SUBSTITUIÇÃO: <Image /> por <img> */}
+          <img
+            src="/world.png"
+            alt="mundo"
+            width={150}
+            height={150}
+            // Adicionando estilos para manter a aparência se necessário
+            style={{ width: 150, height: 150 }}
+          />{' '}
         </div>
         <p className="text-muted-foreground text-lg mt-6">
           Aprofunde seus conhecimentos sobre investimentos através dos nossos
@@ -46,24 +55,23 @@ export default function Home() {
         <section className="mt-5 mb-5">
           <DisclaimerModal />
         </section>
-        {/* --- MODIFICAÇÃO: Botão e Busca lado a lado (em telas maiores) --- */}
         <div className="flex flex-col md:flex-row items-center gap-4 mt-8 w-full justify-center max-w-xl">
-          {/* Botão Mantido */}
-          <Link href="/estudos" className="w-full md:w-auto">
+          {/* 🚨 SUBSTITUIÇÃO: <Link /> por <a> */}
+          <a href="/estudos" className="w-auto">
             <Button className="px-8 py-6 text-lg rounded-xl w-full">
               Ver análises dos ativos
             </Button>
-          </Link>
+          </a>
 
           {/* Busca Adicionada ao Lado */}
-          <div className="w-full md:w-auto">
-            <SearchInput /> {/* Usa o componente que criamos */}
+          <div className="w-full">
+            <SearchInput />
           </div>
         </div>
         {/* ---------------------------------------------------------------- */}
       </section>
 
-      {/* Section de lançamentos mais recentes - ADAPTADA PARA USAR DADOS REAIS */}
+      {/* Seção de Últimos Estudos  */}
       <section className="w-full max-w-5xl mt-20">
         <h2 className="text-3xl font-semibold mb-6 text-foreground">
           Últimos estudos
@@ -80,6 +88,27 @@ export default function Home() {
           ))}
         </div>
       </section>
+
+      {/*  DIV CHAMATIVA DE CALL-TO-ACTION  */}
+      <section className="w-full max-w-5xl mt-20 mb-8 p-8 bg-linear-to-r from-green-500/10 to-transparent border border-green-500/50 rounded-2xl shadow-2xl dark:shadow-green-900/50 flex items-center">
+        <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+          <div className="text-center md:text-left">
+            <h3 className="text-3xl font-extrabold text-[#22c55e]">
+              Gostou das Análises?
+            </h3>
+            <p className="text-lg text-muted-foreground mt-2 max-w-lg">
+              Entre em contato direto com o analista para discutir estratégias
+              personalizadas e oportunidades de investimento.
+            </p>
+          </div>
+
+          {/* O ContactModal agora fornece o botão de ação */}
+          <div className="w-full md:w-auto">
+            <ContactModal />
+          </div>
+        </div>
+      </section>
+      {/* Fim da DIV CHAMATIVA */}
     </main>
   );
 }

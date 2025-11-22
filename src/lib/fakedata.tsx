@@ -1,44 +1,84 @@
-// lib/mockData.ts
+// src/lib/fakedata.ts
 
-/**
- * Interface para um único ponto de dados de vela (OHLC).
- */
-export interface CandleData {
-  date: string; // Data no formato YYYY-MM-DD
-  open: number; // Abertura
-  high: number; // Máxima
-  low: number; // Mínima
-  close: number; // Fechamento (Usado como valor primário para Gráfico de Linha)
+export interface CandleMock {
+  date: string;
+  open: number;
+  close: number;
+  high: number;
+  low: number;
+  volume: number;
 }
 
-/**
- * Dados simulados para o gráfico de vela/linha.
- * 🚨 Ajustados para ter CORPOS GRANDES E PAVIOS ENORMES. 🚨
- */
-export const mockCandleData: CandleData[] = [
-  // Vela 1: Alta. Corpo Grande (50->65). Pavios Extremos (High: 85, Low: 30)
-  { date: '2025-11-01', open: 50.0, high: 85.0, low: 30.0, close: 65.0 },
-  // Vela 2: Alta. Corpo Médio (65->75). Pavios médios.
-  { date: '2025-11-04', open: 65.0, high: 78.0, low: 62.0, close: 75.0 },
-  // Vela 3: Baixa. Corpo Grande (75->60). Pavios Médios.
-  { date: '2025-11-05', open: 75.0, high: 77.0, low: 58.0, close: 60.0 },
-  // Vela 4: Alta. Corpo Pequeno (60->61). Pavios Extremos (High: 80, Low: 40)
-  { date: '2025-11-06', open: 60.0, high: 80.0, low: 40.0, close: 61.0 },
-  // Vela 5: Alta. Corpo Médio (61->70).
-  { date: '2025-11-07', open: 61.0, high: 73.0, low: 59.0, close: 70.0 },
-  // Vela 6: Baixa. Corpo Grande (70->55).
-  { date: '2025-11-08', open: 70.0, high: 72.0, low: 53.0, close: 55.0 },
-  // Vela 7: Alta. Corpo Grande (55->70). Pavios Extremos (High: 90, Low: 35)
-  { date: '2025-11-11', open: 55.0, high: 90.0, low: 35.0, close: 70.0 },
-  // Vela 8: Baixa. Corpo Médio (70->65).
-  { date: '2025-11-12', open: 70.0, high: 71.0, low: 64.0, close: 65.0 },
-  // Vela 9: Alta. Corpo Médio (65->72).
-  { date: '2025-11-13', open: 65.0, high: 75.0, low: 63.0, close: 72.0 },
-  // Vela 10: Alta. Corpo Pequeno (72->73). Pavios Extremos (High: 85, Low: 50)
-  { date: '2025-11-14', open: 72.0, high: 85.0, low: 50.0, close: 73.0 },
-];
+// Lista com Tickers + Nome completo oficial
+export const AllowedStocks = [
+  { ticker: 'PETR4', name: 'Petrobras' },
+  { ticker: 'VALE3', name: 'Vale S.A.' },
+  { ticker: 'ABEV3', name: 'Ambev' },
+  { ticker: 'ITUB4', name: 'Itaú Unibanco' },
+  { ticker: 'MGLU3', name: 'Magazine Luiza' },
+  { ticker: 'BBAS3', name: 'Banco do Brasil' },
+] as const;
 
-/**
- * Data de estudo simulada.
- */
-export const mockStudyDate = '15/11/2025';
+// 🧾 Utilitário para buscar nome a partir do ticker
+export function getStockName(ticker: string): string {
+  const found = AllowedStocks.find(
+    (item) => item.ticker === ticker.toUpperCase(),
+  );
+  return found ? found.name : ticker.toUpperCase();
+}
+
+// 📊 Função que gera dados mock com validação
+export function generateStockData(
+  stock: string,
+  days: number = 60,
+): CandleMock[] | null {
+  const normalized = stock.toUpperCase();
+
+  // ⚠️ Verifica se existe
+  const exists = AllowedStocks.some((item) => item.ticker === normalized);
+  if (!exists) return null;
+
+  // 🔢 Geração determinística por seed
+  function seededRandom(seed: number) {
+    const x = Math.sin(seed) * 10000;
+    return x - Math.floor(x);
+  }
+
+  const seed = normalized
+    .split('')
+    .reduce((acc, char) => acc + char.charCodeAt(0), 0);
+
+  const history: CandleMock[] = [];
+  let lastClose = 50 + seededRandom(seed) * 50;
+
+  for (let i = 0; i < days; i++) {
+    const variation = (seededRandom(seed + i) - 0.5) * 8;
+    const open = parseFloat((lastClose + variation).toFixed(2));
+    const close = parseFloat(
+      (open + (seededRandom(seed * (i + 1)) - 0.5) * 8).toFixed(2),
+    );
+
+    const high = Math.max(open, close) + seededRandom(seed + i) * 4;
+    const low = Math.min(open, close) - seededRandom(seed + i) * 4;
+
+    lastClose = close;
+
+    const date = new Date();
+    date.setDate(date.getDate() - (days - 1 - i));
+    const formattedDate = date.toLocaleDateString('pt-BR', {
+      month: 'short',
+      day: 'numeric',
+    });
+
+    history.push({
+      date: formattedDate,
+      open,
+      close,
+      high: parseFloat(high.toFixed(2)),
+      low: parseFloat(low.toFixed(2)),
+      volume: Math.floor(15000 + seededRandom(seed + i) * 200000),
+    });
+  }
+
+  return history;
+}
