@@ -1,5 +1,3 @@
-// src/lib/fakedata.ts
-
 export interface CandleMock {
   date: string;
   open: number;
@@ -27,18 +25,16 @@ export function getStockName(ticker: string): string {
   return found ? found.name : ticker.toUpperCase();
 }
 
-// 📊 Função que gera dados mock com validação
+// 📊 Função que gera dados mock por hora
 export function generateStockData(
   stock: string,
-  days: number = 60,
+  hours: number = 24 * 5, // padrão: 5 dias, 24h por dia
 ): CandleMock[] | null {
   const normalized = stock.toUpperCase();
 
-  // ⚠️ Verifica se existe
   const exists = AllowedStocks.some((item) => item.ticker === normalized);
   if (!exists) return null;
 
-  // 🔢 Geração determinística por seed
   function seededRandom(seed: number) {
     const x = Math.sin(seed) * 10000;
     return x - Math.floor(x);
@@ -51,24 +47,23 @@ export function generateStockData(
   const history: CandleMock[] = [];
   let lastClose = 50 + seededRandom(seed) * 50;
 
-  for (let i = 0; i < days; i++) {
-    const variation = (seededRandom(seed + i) - 0.5) * 8;
+  const now = new Date();
+
+  for (let i = 0; i < hours; i++) {
+    const variation = (seededRandom(seed + i) - 0.5) * 2; // variação menor por hora
     const open = parseFloat((lastClose + variation).toFixed(2));
     const close = parseFloat(
-      (open + (seededRandom(seed * (i + 1)) - 0.5) * 8).toFixed(2),
+      (open + (seededRandom(seed * (i + 1)) - 0.5) * 2).toFixed(2),
     );
 
-    const high = Math.max(open, close) + seededRandom(seed + i) * 4;
-    const low = Math.min(open, close) - seededRandom(seed + i) * 4;
+    const high = Math.max(open, close) + seededRandom(seed + i);
+    const low = Math.min(open, close) - seededRandom(seed + i);
 
     lastClose = close;
 
-    const date = new Date();
-    date.setDate(date.getDate() - (days - 1 - i));
-    const formattedDate = date.toLocaleDateString('pt-BR', {
-      month: 'short',
-      day: 'numeric',
-    });
+    const date = new Date(now);
+    date.setHours(now.getHours() - (hours - 1 - i)); // retrocede hora a hora
+    const formattedDate = date.toISOString(); // ISO completo: YYYY-MM-DDTHH:mm:ss
 
     history.push({
       date: formattedDate,

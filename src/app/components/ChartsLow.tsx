@@ -18,7 +18,6 @@ interface ChartProps {
 export default function LowTrendChart({ stock }: ChartProps) {
   const data = generateStockData(stock);
 
-  // Evita erro caso o mock retorne null
   if (!data || data.length === 0) {
     return (
       <div className="w-full bg-card p-4 rounded-lg shadow border">
@@ -35,13 +34,38 @@ export default function LowTrendChart({ stock }: ChartProps) {
 
   return (
     <div className="w-full bg-card p-4 rounded-lg shadow border">
-      <h3 className="text-lg font-semibold mb-3">Tendência de Baixa</h3>
+      <h3 className="text-lg font-semibold mb-3 text-center">
+        Tendência de Baixa
+      </h3>
       <ResponsiveContainer width="100%" height={250}>
         <LineChart data={chartData}>
           <CartesianGrid strokeDasharray="3 3" />
-          <XAxis dataKey="date" />
+          <XAxis
+            dataKey="date"
+            interval={Math.floor(chartData.length / 6)}
+            tick={{ dy: 5, fontSize: 12 }}
+            tickFormatter={(value) =>
+              new Date(value).toLocaleTimeString('pt-BR', {
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: false,
+              })
+            }
+          />
           <YAxis />
-          <Tooltip />
+          <Tooltip
+            formatter={(value: number, key: string) => [
+              `R$ ${value.toFixed(2).replace('.', ',')}`,
+              key === 'price' ? 'Valor' : key,
+            ]}
+            labelFormatter={(label) => {
+              const date = new Date(label);
+              return `${date.getHours().toString().padStart(2, '0')}:${date
+                .getMinutes()
+                .toString()
+                .padStart(2, '0')}`;
+            }}
+          />
           <Line
             type="monotone"
             dataKey="price"
