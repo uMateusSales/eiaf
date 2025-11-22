@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useRef, useEffect, useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -17,10 +17,8 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover';
 import { ScrollArea } from '@/components/ui/scroll-area';
-
 import { AllowedStocks } from '@/lib/fakedata';
 
-// 📌 Tipagem baseada no fakedb
 interface Stock {
   ticker: string;
   name: string;
@@ -32,9 +30,7 @@ const SearchInput: React.FC = () => {
   const [showSuggestions, setShowSuggestions] = useState(false);
 
   const router = useRouter();
-  const searchRef = useRef<HTMLDivElement>(null);
 
-  // 🔎 Verifica se o ticker existe
   const isValidStock = useMemo(() => {
     const ticker = searchTerm.trim().toUpperCase();
     return AllowedStocks.some((stock) => stock.ticker === ticker);
@@ -49,21 +45,6 @@ const SearchInput: React.FC = () => {
     transition: 'background-color 0.15s ease-in-out',
   };
 
-  // ❌ Fecha sugestões ao clicar fora
-  useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (
-        searchRef.current &&
-        !searchRef.current.contains(event.target as Node)
-      ) {
-        setShowSuggestions(false);
-      }
-    }
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
-
-  // 🔍 Ação de busca
   const handleSearch = () => {
     const term = searchTerm.trim().toUpperCase();
     if (!term || !isValidStock) return;
@@ -81,7 +62,6 @@ const SearchInput: React.FC = () => {
     if (event.key === 'Enter') handleSearch();
   };
 
-  // 📌 Sugestões: busca por ticker OU nome
   const suggestionsToDisplay: Stock[] = useMemo(() => {
     const q = searchTerm.toLowerCase();
     if (!q) return AllowedStocks;
@@ -95,13 +75,8 @@ const SearchInput: React.FC = () => {
   return (
     <div className="flex w-full max-w-lg items-center space-x-2">
       <Popover open={showSuggestions} onOpenChange={setShowSuggestions}>
-        <PopoverTrigger className="grow">
-          <div
-            className="relative w-full"
-            ref={searchRef}
-            onClick={() => setShowSuggestions(true)}
-            onFocus={() => setShowSuggestions(true)}
-          >
+        <PopoverTrigger asChild>
+          <div className="relative w-full">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400 z-10" />
             <Input
               type="text"
@@ -114,16 +89,13 @@ const SearchInput: React.FC = () => {
                 setSearchTerm(e.target.value);
                 setShowSuggestions(true);
               }}
+              onFocus={() => setShowSuggestions(true)}
               onKeyDown={handleKeyDown}
             />
           </div>
         </PopoverTrigger>
 
-        <PopoverContent
-          className="p-0 shadow-lg z-[9999]"
-          style={{ width: searchRef.current?.clientWidth }}
-          align="start"
-        >
+        <PopoverContent className="p-0 shadow-lg z-[9999] w-full" align="start">
           <ScrollArea>
             <div className="p-1 max-h-[165px] overflow-y-auto">
               {suggestionsToDisplay.map((stock) => (
@@ -149,7 +121,6 @@ const SearchInput: React.FC = () => {
         </PopoverContent>
       </Popover>
 
-      {/* 🧠 Tooltip de erro */}
       <TooltipProvider>
         <Tooltip delayDuration={150}>
           <TooltipTrigger asChild>

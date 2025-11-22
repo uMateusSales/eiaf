@@ -6,6 +6,7 @@ import { getStockName, generateStockData } from '@/lib/fakedata';
 import HighTrendChart from '@/app/components/ChartHigh';
 import LowTrendChart from '@/app/components/ChartsLow';
 import CandlestickChart from '@/app/components/CandlestickChart';
+import SearchInput from '@/app/components/SearchInput';
 
 export default function StudyDetailPage() {
   const params = useParams();
@@ -21,9 +22,12 @@ export default function StudyDetailPage() {
   return (
     <div className="p-4 md:p-6 lg:p-8 space-y-8 max-w-[1400px] mx-auto">
       {/* Título centralizado */}
-      <h1 className="text-3xl md:text-4xl font-bold text-center">
-        Estudo — {fullName} ({slug})
-      </h1>
+      <div className=" flex gap-3 justify-between">
+        <h1 className="text-3xl md:text-4xl font-bold text-center">
+          Estudo — {fullName} ({slug})
+        </h1>
+        <SearchInput />
+      </div>
 
       {/* Gráficos de Tendência: grid responsivo */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
